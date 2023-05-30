@@ -1,14 +1,50 @@
-import requests
+import random
 import json
+import os
+import requests
 
-# Set up the API URL and authentication
-url = 'https://dzygaspaw.com/wp-json/wp/v2/posts'
-media_url = 'https://dzygaspaw.com/wp-json/wp/v2/media'
-user = 'Vitalii'
-password = '4BfN 6K4U KcJP nDlq NwEy Iidu'
+from creds import url, media_url, user, password
 
 # Authenticate the request
 auth = (user, password)
+
+# Load phrases from the JSON file
+with open("phrases.json") as f:
+    phrases = json.load(f)
+
+try:
+    with open("meta.json", "r") as f:
+        meta = json.load(f)
+        remaining_items = meta.get("remaining_items", phrases)
+except FileNotFoundError:
+    remaining_items = phrases
+    with open("meta.json", "w") as f:
+        json.dump({"remaining_items": remaining_items}, f)
+
+if remaining_items:
+    selected_item = random.choice(remaining_items)
+    print("Selected Item:", selected_item)
+
+    remaining_items.remove(selected_item)
+
+    with open("meta.json", "w") as f:
+        json.dump({"remaining_items": remaining_items}, f)
+
+    print("Remaining Items:", remaining_items)
+else:
+    print("No more items remaining. Resetting the list.")
+
+    # Reset the list by removing the meta file
+    if os.path.exists("meta.json"):
+        os.remove("meta.json")
+
+
+# Select random items with minimal risk of repetition
+random_cheer_phrase = selected_item
+
+
+# Print the selected items
+print(random_cheer_phrase)
 
 
 # Set the post data
@@ -16,7 +52,7 @@ post_data = {
     'status': 'publish',
     "link": "https:\/\/dzygaspaw.com\/test_parcel",
     "title": "Test_parcel",
-    "content": '<div><p>This parcel is for (name of unit). It contains a description of the main items included and how the soldiers of this unit can use them.</p><div class="wp-block-image"><figure class="aligncenter"> <img src=https://dzygaspaw.com/wp-content/uploads/2023/05/Fpl_SjaagAAh0cZ-1-scaled.jpg alt="Image"/></div><h2 class="wp-block-heading">This parcel contains</h2><ul><li></li></ul><h2 class="wp-block-heading">Total cost</h2><p>$</p><p>A nice phrase to cheer up visitors of the page.</p></div>',
+    "content": f'<div><p>This parcel is for (name of unit). It contains a description of the main items included and how the soldiers of this unit can use them.</p><div class="wp-block-image"><figure class="aligncenter"> <img src=https://dzygaspaw.com/wp-content/uploads/2023/05/Fpl_SjaagAAh0cZ-1-scaled.jpg alt="Image"/></div><h2 class="wp-block-heading">This parcel contains</h2><ul><li></li></ul><h2 class="wp-block-heading">Total cost</h2><p>$</p><p>{random_cheer_phrase}</p></div>',
     "author": 67,
     "featured_media": 9675,
     "comment_status": "open",
